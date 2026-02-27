@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel Administrador</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background: #f0f0f0;
+    }
+    button {
+      padding: 8px 12px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Panel Administrador – Encuestas</h2>
+
+  <button id="exportarExcel">Exportar a Excel</button>
+  <button id="exportarPDF">Exportar a PDF</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Razón Social</th>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Observaciones</th>
+        <th>Firma</th>
+      </tr>
+    </thead>
+    <tbody id="tablaEncuestas"></tbody>
+  </table>
+
+  <!-- Librerías -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encuesta de Satisfacción</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>Encuesta de Satisfacción</h1>
+    <div class="meta">
+      <span>Código: FYR-LG-04</span>
+      <span>Versión: 02</span>
+      <span>Área: Logística</span>
+    </div>
+  </header>
+
+  <section class="datos">
+    <input type="text" placeholder="Denominacion / Razon Social: " required>
+    <div class="row">
+      <input type="date" required>
+      <input type="time" required>
+    </div>
+  </section>
+
+  <section class="escala">
+    <p>Por favor, completar la  siguiente encuesta en  base  a la  experiencia que  tuvo en la recepción  de  sus  productos, conteste en una  escala de 1 a 5, donde 1 es muy mala y 5 excelente.</p>
+    <div class="rating">
+      <label>1<br>😞</label>
+      <label>2<br>🙁</label>
+      <label>3<br>😐</label>
+      <label>4<br>🙂</label>
+      <label>5<br>😄</label>
+    </div>
+  </section>
+
+  <section class="pregunta">
+    <p>¿Como  considera la comunicación por  parte de BEMISAL para la coordinación de entrega de productos en su bodega ?</p>
+    <div class="rating small">
+      <label><input type="radio" name="p1">1</label>
+      <label><input type="radio" name="p1">2</label>
+      <label><input type="radio" name="p1">3</label>
+      <label><input type="radio" name="p1">4</label>
+      <label><input type="radio" name="p1">5</label>
+    </div>
+  </section>
+
+  <section class="pregunta">
+    <p>¿Como  considera la atención y cumplimiento de protocolos de seguridad e inocuidad del personal de transporte al entregar el producto en sus bodegas?</p>
+    <div class="rating small">
+      <label><input type="radio" name="p2">1</label>
+      <label><input type="radio" name="p2">2</label>
+      <label><input type="radio" name="p2">3</label>
+      <label><input type="radio" name="p2">4</label>
+      <label><input type="radio" name="p2">5</label>
+    </div>
+  </section>
+
+  <section class="pregunta">
+    <p>¿Como considera las  condiciones físicas, embalaje y presentación del producto en la  entrega?</p>
+    <div class="rating small">
+      <label><input type="radio" name="p3">1</label>
+      <label><input type="radio" name="p3">2</label>
+      <label><input type="radio" name="p3">3</label>
+      <label><input type="radio" name="p3">4</label>
+      <label><input type="radio" name="p3">5</label>
+    </div>
+  </section>
+
+  <section class="observaciones">
+    <textarea placeholder="Observaciones"></textarea>
+  </section>
+
+  <section>
+    <label>Adjuntar fotografías:</label>
+    <input type="file" multiple accept="image/*">
+  </section>
+
+  <section class="firma">
+    <p>Firma:</p>
+    <canvas id="firma" width="300" height="150"></canvas>
+    <button type="button" id="limpiarFirma">Limpiar firma</button>
+    <input type="text" placeholder="Nombre de quien recibe">
+  </section>
+
+  <button class="enviar" id="enviarEncuesta">Enviar encuesta</button>
+
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
