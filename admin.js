@@ -14,9 +14,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebas
 import {
   getFirestore,
   collection,
-  getDocs,
-  query,
-  orderBy
+  getDocs
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -36,13 +34,9 @@ const tabla = document.getElementById("tablaEncuestas");
 let encuestas = [];
 
 async function cargarEncuestas() {
-  const q = query(
-    collection(db, "encuestas"),
-    orderBy("creadoEn", "desc")
-  );
-
-  const querySnapshot = await getDocs(q);
+  const querySnapshot = await getDocs(collection(db, "encuestas"));
   encuestas = [];
+
   tabla.innerHTML = "";
 
   querySnapshot.forEach(doc => {
@@ -50,35 +44,15 @@ async function cargarEncuestas() {
     encuestas.push(data);
 
     const tr = document.createElement("tr");
-
-    // 👉 Firma (miniatura)
-    const firmaHTML = data.firmaURL
-      ? `<img src="${data.firmaURL}" width="80" style="cursor:pointer;border:1px solid #ccc"
-           onclick="window.open('${data.firmaURL}','_blank')">`
-      : "";
-
-    // 👉 Fotos adjuntas (miniaturas)
-    let fotosHTML = "";
-    if (Array.isArray(data.fotos)) {
-      fotosHTML = data.fotos
-        .map(
-          url => `
-          <img src="${url}" width="70"
-               style="margin:2px;border:1px solid #ccc;cursor:pointer"
-               onclick="window.open('${url}','_blank')">`
-        )
-        .join("");
-    }
-
     tr.innerHTML = `
       <td>${data.razonSocial || ""}</td>
       <td>${data.fecha || ""}</td>
       <td>${data.hora || ""}</td>
       <td>${data.observaciones || ""}</td>
-      <td>${firmaHTML}</td>
-      <td>${fotosHTML}</td>
+      <td>
+        ${data.firmaURL ? `<a href="${data.firmaURL}" target="_blank">Ver</a>` : ""}
+      </td>
     `;
-
     tabla.appendChild(tr);
   });
 }
