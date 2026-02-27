@@ -122,7 +122,9 @@ async function subirFirmaCloudinary(base64) {
     { method: "POST", body: formData }
   );
 
-  if (!res.ok) throw new Error("Error Cloudinary");
+  if (!res.ok) {
+    throw new Error("Error al subir firma a Cloudinary");
+  }
 
   const data = await res.json();
   return data.secure_url;
@@ -134,13 +136,27 @@ async function subirFirmaCloudinary(base64) {
 enviarBtn.addEventListener("click", async () => {
   if (enviando) return;
 
-  const razonSocial = document.querySelector('input[placeholder="Razón Social"]').value.trim();
-  const fecha = document.querySelector('input[type="date"]').value;
-  const hora = document.querySelector('input[type="time"]').value;
-  const observaciones = document.querySelector("textarea").value.trim();
+  // 📌 Inputs correctos por ID
+  const razonSocial = document.getElementById("razonSocial").value.trim();
+  const fecha = document.getElementById("fecha").value;
+  const hora = document.getElementById("hora").value;
+  const observaciones = document.getElementById("observaciones").value.trim();
+  const nombreFirma = document.getElementById("nombreFirma").value.trim();
 
-  if (!razonSocial || !fecha || !hora) {
+  const p1 = document.querySelector('input[name="p1"]:checked')?.value;
+  const p2 = document.querySelector('input[name="p2"]:checked')?.value;
+  const p3 = document.querySelector('input[name="p3"]:checked')?.value;
+
+  // =======================
+  // VALIDACIONES
+  // =======================
+  if (!razonSocial || !fecha || !hora || !nombreFirma) {
     alert("⚠️ Complete todos los campos obligatorios");
+    return;
+  }
+
+  if (!p1 || !p2 || !p3) {
+    alert("⚠️ Responda todas las preguntas");
     return;
   }
 
@@ -154,23 +170,29 @@ enviarBtn.addEventListener("click", async () => {
     enviarBtn.disabled = true;
     enviarBtn.innerText = "Enviando...";
 
+    // Subir firma
     const firmaBase64 = obtenerFirmaBase64();
     const firmaURL = await subirFirmaCloudinary(firmaBase64);
 
+    // Guardar encuesta
     await addDoc(collection(db, "encuestas"), {
       razonSocial,
       fecha,
       hora,
+      p1,
+      p2,
+      p3,
       observaciones,
+      nombreFirma,
       firmaURL,
       creadoEn: new Date()
     });
 
     alert("✅ Encuesta enviada correctamente");
 
-    // Reset
+    // Reset visual
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    enviarBtn.innerText = "Enviar encuesta";
+    document.querySelector("form")?.reset();
 
   } catch (error) {
     console.error(error);
@@ -178,5 +200,6 @@ enviarBtn.addEventListener("click", async () => {
   } finally {
     enviando = false;
     enviarBtn.disabled = false;
+    enviarBtn.innerText = "Enviar encuesta";
   }
 });
