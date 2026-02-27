@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Encuesta de Satisfacción</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
@@ -19,16 +19,32 @@
     </div>
   </header>
 
+  <!-- ===================== -->
+  <!-- DATOS GENERALES -->
+  <!-- ===================== -->
   <section class="datos">
-    <input type="text" placeholder="Denominacion / Razon Social: " required>
+    <input
+      type="text"
+      id="razonSocial"
+      placeholder="Denominación / Razón Social"
+      required
+    />
+
     <div class="row">
-      <input type="date" required>
-      <input type="time" required>
+      <input type="date" id="fecha" required />
+      <input type="time" id="hora" required />
     </div>
   </section>
 
+  <!-- ===================== -->
+  <!-- ESCALA -->
+  <!-- ===================== -->
   <section class="escala">
-    <p>Por favor, completar la  siguiente encuesta en  base  a la  experiencia que  tuvo en la recepción  de  sus  productos, conteste en una  escala de 1 a 5, donde 1 es muy mala y 5 excelente.</p>
+    <p>
+      Por favor, completar la siguiente encuesta en base a la experiencia que
+      tuvo en la recepción de sus productos, en una escala de 1 a 5, donde
+      1 es muy mala y 5 excelente.
+    </p>
     <div class="rating">
       <label>1<br>😞</label>
       <label>2<br>🙁</label>
@@ -38,56 +54,99 @@
     </div>
   </section>
 
+  <!-- ===================== -->
+  <!-- PREGUNTA 1 -->
+  <!-- ===================== -->
   <section class="pregunta">
-    <p>¿Como  considera la comunicación por  parte de BEMISAL para la coordinación de entrega de productos en su bodega ?</p>
+    <p>
+      ¿Cómo considera la comunicación por parte de BEMISAL para la coordinación
+      de entrega de productos en su bodega?
+    </p>
     <div class="rating small">
-      <label><input type="radio" name="p1">1</label>
-      <label><input type="radio" name="p1">2</label>
-      <label><input type="radio" name="p1">3</label>
-      <label><input type="radio" name="p1">4</label>
-      <label><input type="radio" name="p1">5</label>
+      <label><input type="radio" name="p1" value="1" required>1</label>
+      <label><input type="radio" name="p1" value="2">2</label>
+      <label><input type="radio" name="p1" value="3">3</label>
+      <label><input type="radio" name="p1" value="4">4</label>
+      <label><input type="radio" name="p1" value="5">5</label>
     </div>
   </section>
 
+  <!-- ===================== -->
+  <!-- PREGUNTA 2 -->
+  <!-- ===================== -->
   <section class="pregunta">
-    <p>¿Como  considera la atención y cumplimiento de protocolos de seguridad e inocuidad del personal de transporte al entregar el producto en sus bodegas?</p>
+    <p>
+      ¿Cómo considera la atención y cumplimiento de protocolos de seguridad
+      e inocuidad del personal de transporte?
+    </p>
     <div class="rating small">
-      <label><input type="radio" name="p2">1</label>
-      <label><input type="radio" name="p2">2</label>
-      <label><input type="radio" name="p2">3</label>
-      <label><input type="radio" name="p2">4</label>
-      <label><input type="radio" name="p2">5</label>
+      <label><input type="radio" name="p2" value="1" required>1</label>
+      <label><input type="radio" name="p2" value="2">2</label>
+      <label><input type="radio" name="p2" value="3">3</label>
+      <label><input type="radio" name="p2" value="4">4</label>
+      <label><input type="radio" name="p2" value="5">5</label>
     </div>
   </section>
 
+  <!-- ===================== -->
+  <!-- PREGUNTA 3 -->
+  <!-- ===================== -->
   <section class="pregunta">
-    <p>¿Como considera las  condiciones físicas, embalaje y presentación del producto en la  entrega?</p>
+    <p>
+      ¿Cómo considera las condiciones físicas, embalaje y presentación del
+      producto en la entrega?
+    </p>
     <div class="rating small">
-      <label><input type="radio" name="p3">1</label>
-      <label><input type="radio" name="p3">2</label>
-      <label><input type="radio" name="p3">3</label>
-      <label><input type="radio" name="p3">4</label>
-      <label><input type="radio" name="p3">5</label>
+      <label><input type="radio" name="p3" value="1" required>1</label>
+      <label><input type="radio" name="p3" value="2">2</label>
+      <label><input type="radio" name="p3" value="3">3</label>
+      <label><input type="radio" name="p3" value="4">4</label>
+      <label><input type="radio" name="p3" value="5">5</label>
     </div>
   </section>
 
+  <!-- ===================== -->
+  <!-- OBSERVACIONES -->
+  <!-- ===================== -->
   <section class="observaciones">
-    <textarea placeholder="Observaciones"></textarea>
+    <textarea
+      id="observaciones"
+      placeholder="Observaciones"
+    ></textarea>
   </section>
 
+  <!-- ===================== -->
+  <!-- FOTOS -->
+  <!-- ===================== -->
   <section>
     <label>Adjuntar fotografías:</label>
-    <input type="file" multiple accept="image/*">
+    <input type="file" id="fotos" multiple accept="image/*" />
   </section>
 
+  <!-- ===================== -->
+  <!-- FIRMA -->
+  <!-- ===================== -->
   <section class="firma">
     <p>Firma:</p>
+
     <canvas id="firma" width="300" height="150"></canvas>
+
     <button type="button" id="limpiarFirma">Limpiar firma</button>
-    <input type="text" placeholder="Nombre de quien recibe">
+
+    <input
+      type="text"
+      id="nombreFirma"
+      placeholder="Nombre de quien recibe"
+      required
+    />
   </section>
 
-  <button class="enviar" id="enviarEncuesta">Enviar encuesta</button>
+  <!-- ===================== -->
+  <!-- ENVIAR -->
+  <!-- ===================== -->
+  <button class="enviar" id="enviarEncuesta">
+    Enviar encuesta
+  </button>
 
 </div>
 
