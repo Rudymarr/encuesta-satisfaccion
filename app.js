@@ -21,17 +21,25 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // =======================
-// ✍️ FIRMA EN CANVAS
+// 🎯 ELEMENTOS DOM
 // =======================
 const canvas = document.getElementById("firma");
 const ctx = canvas.getContext("2d");
 const limpiarBtn = document.getElementById("limpiarFirma");
 const enviarBtn = document.getElementById("enviarEncuesta");
 
+const razonSocialInput = document.getElementById("razonSocial");
+const fechaInput = document.getElementById("fecha");
+const horaInput = document.getElementById("hora");
+const observacionesInput = document.getElementById("observaciones");
+const nombreFirmaInput = document.getElementById("nombreFirma");
+
 let dibujando = false;
 let enviando = false;
 
-// Ajuste retina
+// =======================
+// ✍️ FIRMA EN CANVAS
+// =======================
 function ajustarCanvas() {
   const rect = canvas.getBoundingClientRect();
   canvas.width = rect.width;
@@ -77,18 +85,15 @@ function terminar() {
   ctx.closePath();
 }
 
-// Mouse
 canvas.addEventListener("mousedown", iniciar);
 canvas.addEventListener("mousemove", dibujar);
 canvas.addEventListener("mouseup", terminar);
 canvas.addEventListener("mouseleave", terminar);
 
-// Touch
 canvas.addEventListener("touchstart", iniciar);
 canvas.addEventListener("touchmove", dibujar);
 canvas.addEventListener("touchend", terminar);
 
-// Limpiar firma
 limpiarBtn.addEventListener("click", () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 });
@@ -107,6 +112,11 @@ function obtenerFirmaBase64() {
   return canvas.toDataURL("image/png");
 }
 
+function obtenerRespuesta(nombre) {
+  const checked = document.querySelector(`input[name="${nombre}"]:checked`);
+  return checked ? checked.value : null;
+}
+
 // =======================
 // ☁️ CLOUDINARY
 // =======================
@@ -122,9 +132,7 @@ async function subirFirmaCloudinary(base64) {
     { method: "POST", body: formData }
   );
 
-  if (!res.ok) {
-    throw new Error("Error al subir firma a Cloudinary");
-  }
+  if (!res.ok) throw new Error("Error Cloudinary");
 
   const data = await res.json();
   return data.secure_url;
@@ -136,20 +144,16 @@ async function subirFirmaCloudinary(base64) {
 enviarBtn.addEventListener("click", async () => {
   if (enviando) return;
 
-  // 📌 Inputs correctos por ID
-  const razonSocial = document.getElementById("razonSocial").value.trim();
-  const fecha = document.getElementById("fecha").value;
-  const hora = document.getElementById("hora").value;
-  const observaciones = document.getElementById("observaciones").value.trim();
-  const nombreFirma = document.getElementById("nombreFirma").value.trim();
+  const razonSocial = razonSocialInput.value.trim();
+  const fecha = fechaInput.value;
+  const hora = horaInput.value;
+  const observaciones = observacionesInput.value.trim();
+  const nombreFirma = nombreFirmaInput.value.trim();
 
-  const p1 = document.querySelector('input[name="p1"]:checked')?.value;
-  const p2 = document.querySelector('input[name="p2"]:checked')?.value;
-  const p3 = document.querySelector('input[name="p3"]:checked')?.value;
+  const p1 = obtenerRespuesta("p1");
+  const p2 = obtenerRespuesta("p2");
+  const p3 = obtenerRespuesta("p3");
 
-  // =======================
-  // VALIDACIONES
-  // =======================
   if (!razonSocial || !fecha || !hora || !nombreFirma) {
     alert("⚠️ Complete todos los campos obligatorios");
     return;
@@ -170,20 +174,18 @@ enviarBtn.addEventListener("click", async () => {
     enviarBtn.disabled = true;
     enviarBtn.innerText = "Enviando...";
 
-    // Subir firma
     const firmaBase64 = obtenerFirmaBase64();
     const firmaURL = await subirFirmaCloudinary(firmaBase64);
 
-    // Guardar encuesta
     await addDoc(collection(db, "encuestas"), {
       razonSocial,
       fecha,
       hora,
+      nombreFirma,
       p1,
       p2,
       p3,
       observaciones,
-      nombreFirma,
       firmaURL,
       creadoEn: new Date()
     });
@@ -192,7 +194,7 @@ enviarBtn.addEventListener("click", async () => {
 
     // Reset visual
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    document.querySelector("form")?.reset();
+    enviarBtn.innerText = "Enviar encuesta";
 
   } catch (error) {
     console.error(error);
@@ -200,6 +202,5 @@ enviarBtn.addEventListener("click", async () => {
   } finally {
     enviando = false;
     enviarBtn.disabled = false;
-    enviarBtn.innerText = "Enviar encuesta";
   }
 });
