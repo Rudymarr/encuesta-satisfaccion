@@ -59,8 +59,8 @@ async function cargarEncuestas() {
 
     // 👉 Fotos adjuntas (miniaturas)
     let fotosHTML = "";
-    if (Array.isArray(data.fotosURL )) {
-      fotosHTML = data.fotosURL 
+    if (Array.isArray(data.fotosURLs )) {
+      fotosHTML = data.fotosURLs 
         .map(
           url => `
           <img src="${url}" width="70"
@@ -118,4 +118,5 @@ document.getElementById("exportarPDF").addEventListener("click", async () => {
 
   pdf.save("encuestas.pdf");
 });
+
 
