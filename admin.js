@@ -58,17 +58,17 @@ async function cargarEncuestas() {
       : "";
 
     // 👉 Fotos adjuntas (miniaturas)
-    let fotosHTML = "";
-    if (Array.isArray(data.fotosURLs )) {
-      fotosHTML = data.fotosURLs 
-        .map(
-          url => `
-          <img src="${url}" width="70"
-               style="margin:2px;border:1px solid #ccc;cursor:pointer"
-               onclick="window.open('${url}','_blank')">`
-        )
-        .join("");
-    }
+    // 🖼️ MINIATURAS DE FOTOS
+const fotosHTML = (data.fotosURLs && data.fotosURLs.length > 0)
+  ? data.fotosURLs.map(url => `
+      <a href="${url}" target="_blank">
+        <img 
+          src="${url}" 
+          style="width:60px;height:auto;margin:4px;border-radius:6px;border:1px solid #ccc"
+        >
+      </a>
+    `).join("")
+  : "";
 
     tr.innerHTML = `
       <td>${data.razonSocial || ""}</td>
@@ -118,5 +118,6 @@ document.getElementById("exportarPDF").addEventListener("click", async () => {
 
   pdf.save("encuestas.pdf");
 });
+
 
 
