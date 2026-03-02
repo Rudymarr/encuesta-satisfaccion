@@ -70,16 +70,19 @@ const fotosHTML = (data.fotosURLs && data.fotosURLs.length > 0)
     `).join("")
   : "";
 
-    tr.innerHTML = `
-      <td>${data.razonSocial || ""}</td>
-      <td>${data.fecha || ""}</td>
-      <td>${data.hora || ""}</td>
-      <td>${data.observaciones || ""}</td>
-      <td>${firmaHTML}</td>
-      <td>${fotosHTML}</td>
-    `;
+  tr.innerHTML = `
+  <td>${data.razonSocial || ""}</td>
+  <td>${data.fecha || ""}</td>
+  <td>${data.hora || ""}</td>
+  <td>${data.p1 || ""}</td>
+  <td>${data.p2 || ""}</td>
+  <td>${data.p3 || ""}</td>
+  <td>${data.observaciones || ""}</td>
+  <td>${firmaHTML}</td>
+  <td>${fotosHTML}</td>
+`;
 
-    tabla.appendChild(tr);
+tabla.appendChild(tr);
   });
 }
 
@@ -118,6 +121,7 @@ document.getElementById("exportarPDF").addEventListener("click", async () => {
 
   pdf.save("encuestas.pdf");
 });
+
 
 
 
