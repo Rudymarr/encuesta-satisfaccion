@@ -153,13 +153,14 @@ enviarBtn.addEventListener("click", async () => {
   const p1 = obtenerRespuesta("p1");
   const p2 = obtenerRespuesta("p2");
   const p3 = obtenerRespuesta("p3");
+  const p4 = obtenerRespuesta("p4");
 
   if (!razonSocial || !fecha || !hora || !nombreFirma) {
     alert("⚠️ Complete todos los campos obligatorios");
     return;
   }
 
-  if (!p1 || !p2 || !p3) {
+  if (!p1 || !p2 || !p3 || !p4) {
     alert("⚠️ Responda todas las preguntas");
     return;
   }
@@ -185,6 +186,7 @@ enviarBtn.addEventListener("click", async () => {
       p1,
       p2,
       p3,
+      p4,
       observaciones,
       firmaURL,
       creadoEn: new Date()
