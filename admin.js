@@ -77,6 +77,7 @@ const fotosHTML = (data.fotosURLs && data.fotosURLs.length > 0)
   <td>${data.p1 || ""}</td>
   <td>${data.p2 || ""}</td>
   <td>${data.p3 || ""}</td>
+  <td>${data.p4 || ""}</td>
   <td>${data.observaciones || ""}</td>
   <td>${firmaHTML}</td>
   <td>${fotosHTML}</td>
