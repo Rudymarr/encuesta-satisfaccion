@@ -30,7 +30,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ================= CARGAR ENCUESTAS =================
+// ======================================================
+// 📋 CARGAR ENCUESTAS
+// ======================================================
 const tabla = document.getElementById("tablaEncuestas");
 let encuestas = [];
 
@@ -40,31 +42,47 @@ async function cargarEncuestas() {
     orderBy("creadoEn", "desc")
   );
 
-  const snap = await getDocs(q);
+  const snapshot = await getDocs(q);
   encuestas = [];
   tabla.innerHTML = "";
 
-  snap.forEach(docSnap => {
+  snapshot.forEach(docSnap => {
     const data = docSnap.data();
     const id = docSnap.id;
 
     encuestas.push({ id, ...data });
 
+    const tr = document.createElement("tr");
+
+    // 🔴🟢 VALIDAR TRAZABILIDAD
+    const sinTransportista = !data.transportista;
+    const sinEspecialista = !data.especialistaLogistica;
+
+    if (sinTransportista || sinEspecialista) {
+      tr.classList.add("falta-trazabilidad");
+      tr.title = "Falta asignar transportista y/o especialista";
+    } else {
+      tr.classList.add("trazabilidad-ok");
+      tr.title = "Trazabilidad completa";
+    }
+
+    // Firma
     const firmaHTML = data.firmaURL
       ? `<a href="${data.firmaURL}" target="_blank">
-           <img src="${data.firmaURL}" width="60">
+           <img src="${data.firmaURL}" width="80">
          </a>`
       : "";
 
+    // Fotos
     const fotosHTML = (data.fotosURLs && data.fotosURLs.length > 0)
       ? data.fotosURLs.map(url => `
           <a href="${url}" target="_blank">
-            <img src="${url}" width="60" style="margin:2px">
-          </a>`).join("")
+            <img src="${url}" width="60" style="margin:3px">
+          </a>
+        `).join("")
       : "";
 
-    const tr = document.createElement("tr");
-
+    // ✅ ORDEN EXACTO DE LA TABLA
     tr.innerHTML = `
       <td>${data.razonSocial || ""}</td>
       <td>${data.fecha || ""}</td>
@@ -79,7 +97,7 @@ async function cargarEncuestas() {
       <td>${firmaHTML}</td>
       <td>${fotosHTML}</td>
 
-      <!-- Transportista -->
+      <!-- 🚚 Transportista -->
       <td>
         <input
           type="text"
@@ -88,7 +106,7 @@ async function cargarEncuestas() {
           placeholder="Ingresar transportista">
       </td>
 
-      <!-- Especialista -->
+      <!-- 👤 Especialista -->
       <td>
         <select id="especialista-${id}">
           <option value="">-- Seleccione --</option>
@@ -99,7 +117,7 @@ async function cargarEncuestas() {
         </select>
       </td>
 
-      <!-- Accion -->
+      <!-- ✅ Acción -->
       <td>
         <button onclick="guardarTrazabilidad('${id}')">💾 Guardar</button>
       </td>
@@ -107,27 +125,24 @@ async function cargarEncuestas() {
 
     tabla.appendChild(tr);
 
-    // ✅ Preseleccionar especialista guardado
+    // ✅ Preseleccionar especialista si ya existe
     if (data.especialistaLogistica) {
       const sel = document.getElementById(`especialista-${id}`);
       if (sel) sel.value = data.especialistaLogistica;
     }
   });
+
+  actualizarContadores();
 }
 
 cargarEncuestas();
 
-// ================= GUARDAR TRAZABILIDAD =================
+// ======================================================
+// 💾 GUARDAR TRAZABILIDAD
+// ======================================================
 window.guardarTrazabilidad = async (id) => {
-  const transportista = document
-    .getElementById(`transportista-${id}`)
-    .value
-    .trim();
-
-  const especialistaLogistica = document
-    .getElementById(`especialista-${id}`)
-    .value
-    .trim();
+  const transportista = document.getElementById(`transportista-${id}`).value.trim();
+  const especialistaLogistica = document.getElementById(`especialista-${id}`).value.trim();
 
   if (!transportista || !especialistaLogistica) {
     alert("Debe ingresar transportista y especialista");
@@ -140,12 +155,48 @@ window.guardarTrazabilidad = async (id) => {
     actualizadoEn: new Date()
   });
 
-  await cargarEncuestas(); // ✅ refresca tabla
-
-  alert("Trazabilidad guardada correctamente");
+  await cargarEncuestas();
+  alert("✅ Trazabilidad guardada correctamente");
 };
 
-// ================= EXPORTAR EXCEL =================
+// ======================================================
+// 🔢 CONTADORES
+// ======================================================
+function actualizarContadores() {
+  const filas = document.querySelectorAll("#tablaEncuestas tr");
+  let pendientes = 0;
+  let completas = 0;
+
+  filas.forEach(tr => {
+    if (tr.classList.contains("falta-trazabilidad")) pendientes++;
+    if (tr.classList.contains("trazabilidad-ok")) completas++;
+  });
+
+  document.getElementById("contadorPendientes").textContent =
+    `🔴 Pendientes: ${pendientes}`;
+
+  document.getElementById("contadorCompletas").textContent =
+    `🟢 Completas: ${completas}`;
+}
+
+// ======================================================
+// 🔎 FILTROS
+// ======================================================
+document.getElementById("btnPendientes").addEventListener("click", () => {
+  document.querySelectorAll("#tablaEncuestas tr").forEach(tr => {
+    tr.style.display = tr.classList.contains("falta-trazabilidad") ? "" : "none";
+  });
+});
+
+document.getElementById("btnTodas").addEventListener("click", () => {
+  document.querySelectorAll("#tablaEncuestas tr").forEach(tr => {
+    tr.style.display = "";
+  });
+});
+
+// ======================================================
+// 📊 EXPORTAR EXCEL
+// ======================================================
 document.getElementById("exportarExcel").addEventListener("click", () => {
   const ws = XLSX.utils.json_to_sheet(encuestas);
   const wb = XLSX.utils.book_new();
@@ -153,7 +204,9 @@ document.getElementById("exportarExcel").addEventListener("click", () => {
   XLSX.writeFile(wb, "encuestas.xlsx");
 });
 
-// ================= EXPORTAR PDF =================
+// ======================================================
+// 📄 EXPORTAR PDF
+// ======================================================
 document.getElementById("exportarPDF").addEventListener("click", () => {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
