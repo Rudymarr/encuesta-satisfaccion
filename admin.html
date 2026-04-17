@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- SheetJS (Excel) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx/script>
 
   <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -50,7 +50,8 @@
       background: #f0f0f0;
     }
 
-    input[type="text"] {
+    input[type="text"],
+    select {
       width: 100%;
       padding: 4px;
       font-size: 12px;
@@ -79,13 +80,13 @@
   <table>
     <thead>
       <tr>
-        <!-- ORDEN EXACTO COMO TU CAPTURA -->
-        <th>Razón Social</th>
+        <!-- ORDEN EXACTO COMO TU SISTEMA ACTUAL -->
+        <th>Razon Social</th>
         <th>Fecha</th>
         <th>Hora</th>
 
-        <th>Comunicación</th>
-        <th>Atención</th>
+        <th>Comunicacion</th>
+        <th>Atencion</th>
         <th>Condiciones</th>
         <th>Amabilidad</th>
 
@@ -94,19 +95,18 @@
         <th>Fotos</th>
 
         <th>Transportista</th>
-        <th>Especialista Logística</th>
-        <th>Acción</th>
+        <th>Especialista Logistica</th>
+        <th>Accion</th>
       </tr>
     </thead>
 
     <tbody id="tablaEncuestas">
-      <!-- Cargado dinámicamente por admin.js -->
+      <!-- Las filas se cargan desde admin.js -->
     </tbody>
   </table>
 
-  <!-- ================= SCRIPT ================= -->
+  <!-- ================= SCRIPT ADMIN ================= -->
   <script type="module" src="admin.js"></script>
 
 </body>
 </html>
-``
