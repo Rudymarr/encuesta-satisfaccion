@@ -17,7 +17,6 @@ import {
   getDocs,
   query,
   orderBy,
-  addDoc,
   doc,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -32,7 +31,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ======================================================
-// 📋 ENCUESTAS
+// 📋 CARGAR ENCUESTAS
 // ======================================================
 const tabla = document.getElementById("tablaEncuestas");
 let encuestas = [];
@@ -43,35 +42,59 @@ async function cargarEncuestas() {
     orderBy("creadoEn", "desc")
   );
 
-  const snap = await getDocs(q);
+  const snapshot = await getDocs(q);
   encuestas = [];
   tabla.innerHTML = "";
 
-  snap.forEach(docSnap => {
+  snapshot.forEach(docSnap => {
     const data = docSnap.data();
-    encuestas.push(data);
+    const id = docSnap.id;
+
+    encuestas.push({ id, ...data });
 
     // Firma
     const firmaHTML = data.firmaURL
       ? `<img src="${data.firmaURL}" width="80"
-              style="cursor:pointer;border:1px solid #ccc"
-              onclick="window.open('${data.firmaURL}','_blank')">`
+           style="cursor:pointer"
+           onclick="window.open('${data.firmaURL}','_blank')">`
       : "";
 
     // Fotos
     const fotosHTML = (data.fotosURLs && data.fotosURLs.length > 0)
       ? data.fotosURLs.map(url => `
           <a href="${url}" target="_blank">
-            <img src="${url}" style="width:60px;margin:4px;border-radius:6px;border:1px solid #ccc">
+            <img src="${url}" width="60" style="margin:4px">
           </a>
         `).join("")
       : "";
 
     const tr = document.createElement("tr");
+
     tr.innerHTML = `
       <td>${data.razonSocial || ""}</td>
       <td>${data.fecha || ""}</td>
       <td>${data.hora || ""}</td>
+
+      <!-- Transportista (editable) -->
+      <td>
+        <input
+          type="text"
+          id="transportista-${id}"
+          value="${data.transportista || ""}"
+          placeholder="Sin asignar"
+        >
+      </td>
+
+      <!-- Especialista (editable) -->
+      <td>
+        <input
+          type="text"
+          id="especialista-${id}"
+          value="${data.especialistaLogistica || ""}"
+          placeholder="Sin asignar"
+        >
+      </td>
+
       <td>${data.p1 || ""}</td>
       <td>${data.p2 || ""}</td>
       <td>${data.p3 || ""}</td>
@@ -79,6 +102,12 @@ async function cargarEncuestas() {
       <td>${data.observaciones || ""}</td>
       <td>${firmaHTML}</td>
       <td>${fotosHTML}</td>
+
+      <td>
+        <button onclick="guardarTrazabilidad('${id}')">
+          💾 Guardar
+        </button>
+      </td>
     `;
 
     tabla.appendChild(tr);
@@ -88,114 +117,32 @@ async function cargarEncuestas() {
 cargarEncuestas();
 
 // ======================================================
-// 🚚 CATÁLOGO TRANSPORTISTAS
+// 💾 GUARDAR TRANSPORTISTA + ESPECIALISTA (POR ENCUESTA)
 // ======================================================
-const transportistasRef = collection(db, "transportistas");
+window.guardarTrazabilidad = async (id) => {
+  const transportista = document
+    .getElementById(`transportista-${id}`)
+    .value
+    .trim();
 
-document.getElementById("btnAddTransportista")?.addEventListener("click", async () => {
-  const input = document.getElementById("nuevoTransportista");
-  const nombre = input.value.trim();
+  const especialistaLogistica = document
+    .getElementById(`especialista-${id}`)
+    .value
+    .trim();
 
-  if (!nombre) {
-    alert("Ingrese el nombre del transportista");
+  if (!transportista || !especialistaLogistica) {
+    alert("⚠️ Debe ingresar transportista y especialista");
     return;
   }
 
-  await addDoc(transportistasRef, {
-    nombre,
-    activo: true,
-    creadoEn: new Date()
+  await updateDoc(doc(db, "encuestas", id), {
+    transportista,
+    especialistaLogistica,
+    actualizadoEn: new Date()
   });
 
-  input.value = "";
-  cargarTransportistas();
-});
-
-async function cargarTransportistas() {
-  const cont = document.getElementById("listaTransportistas");
-  if (!cont) return;
-
-  cont.innerHTML = "";
-  const snap = await getDocs(transportistasRef);
-
-  snap.forEach(d => {
-    const data = d.data();
-    const div = document.createElement("div");
-    div.className = "catalogo-item";
-
-    div.innerHTML = `
-      <span class="${data.activo ? "" : "inactivo"}">${data.nombre}</span>
-      <button>${data.activo ? "Desactivar" : "Activar"}</button>
-    `;
-
-    div.querySelector("button").onclick = async () => {
-      await updateDoc(doc(db, "transportistas", d.id), {
-        activo: !data.activo
-      });
-      cargarTransportistas();
-    };
-
-    cont.appendChild(div);
-  });
-}
-
-// ======================================================
-// 👤 CATÁLOGO ESPECIALISTAS
-// ======================================================
-const especialistasRef = collection(db, "especialistas");
-
-document.getElementById("btnAddEspecialista")?.addEventListener("click", async () => {
-  const input = document.getElementById("nuevoEspecialista");
-  const nombre = input.value.trim();
-
-  if (!nombre) {
-    alert("Ingrese el nombre del especialista");
-    return;
-  }
-
-  await addDoc(especialistasRef, {
-    nombre,
-    activo: true,
-    creadoEn: new Date()
-  });
-
-  input.value = "";
-  cargarEspecialistas();
-});
-
-async function cargarEspecialistas() {
-  const cont = document.getElementById("listaEspecialistas");
-  if (!cont) return;
-
-  cont.innerHTML = "";
-  const snap = await getDocs(especialistasRef);
-
-  snap.forEach(d => {
-    const data = d.data();
-    const div = document.createElement("div");
-    div.className = "catalogo-item";
-
-    div.innerHTML = `
-      <span class="${data.activo ? "" : "inactivo"}">${data.nombre}</span>
-      <button>${data.activo ? "Desactivar" : "Activar"}</button>
-    `;
-
-    div.querySelector("button").onclick = async () => {
-      await updateDoc(doc(db, "especialistas", d.id), {
-        activo: !data.activo
-      });
-      cargarEspecialistas();
-    };
-
-    cont.appendChild(div);
-  });
-}
-
-// ======================================================
-// 🚀 INIT
-// ======================================================
-cargarTransportistas();
-cargarEspecialistas();
+  alert("✅ Trazabilidad guardada correctamente");
+};
 
 // ======================================================
 // 📊 EXPORTAR A EXCEL
@@ -219,6 +166,8 @@ document.getElementById("exportarPDF").addEventListener("click", () => {
     pdf.text(`Encuesta #${i + 1}`, 10, y); y += 8;
     pdf.text(`Razón Social: ${e.razonSocial || ""}`, 10, y); y += 8;
     pdf.text(`Fecha: ${e.fecha || ""}  Hora: ${e.hora || ""}`, 10, y); y += 8;
+    pdf.text(`Transportista: ${e.transportista || "Sin asignar"}`, 10, y); y += 8;
+    pdf.text(`Especialista: ${e.especialistaLogistica || "Sin asignar"}`, 10, y); y += 8;
     pdf.text(`Observaciones: ${e.observaciones || ""}`, 10, y); y += 12;
 
     if (y > 270) {
