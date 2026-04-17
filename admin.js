@@ -52,55 +52,61 @@ async function cargarEncuestas() {
 
     encuestas.push({ id, ...data });
 
-    // Firma
+    // Firma (miniatura clickeable)
     const firmaHTML = data.firmaURL
-      ? `<img src="${data.firmaURL}" width="80"
-           style="cursor:pointer"
+      ? `<img src="${data.firmaURL}" width="70" style="cursor:pointer"
            onclick="window.open('${data.firmaURL}','_blank')">`
       : "";
 
-    // Fotos
+    // Fotos (miniaturas)
     const fotosHTML = (data.fotosURLs && data.fotosURLs.length > 0)
       ? data.fotosURLs.map(url => `
           <a href="${url}" target="_blank">
-            <img src="${url}" width="60" style="margin:4px">
+            <img src="${url}" width="60" style="margin:3px">
           </a>
         `).join("")
       : "";
 
     const tr = document.createElement("tr");
 
+    // ✅ ORDEN EXACTO COMO TU TABLA ACTUAL
     tr.innerHTML = `
       <td>${data.razonSocial || ""}</td>
       <td>${data.fecha || ""}</td>
-      <td>${data.hora || ""}</td>  
+      <td>${data.hora || ""}</td>
+
       <td>${data.p1 || ""}</td>
       <td>${data.p2 || ""}</td>
       <td>${data.p3 || ""}</td>
       <td>${data.p4 || ""}</td>
+
       <td>${data.observaciones || ""}</td>
       <td>${firmaHTML}</td>
       <td>${fotosHTML}</td>
-      <!-- Transportista (editable) -->
+
+      <!-- ✅ Transportista (FINAL) -->
       <td>
         <input
           type="text"
           id="transportista-${id}"
           value="${data.transportista || ""}"
-          placeholder="Sin asignar"
+          placeholder="Ingresar transportista"
+          style="width:140px"
         >
       </td>
 
-      <!-- Especialista (editable) -->
+      <!-- ✅ Especialista Logística (FINAL) -->
       <td>
         <input
           type="text"
           id="especialista-${id}"
           value="${data.especialistaLogistica || ""}"
-          placeholder="Sin asignar"
+          placeholder="Ingresar especialista"
+          style="width:160px"
         >
       </td>
 
+      <!-- ✅ Acción -->
       <td>
         <button onclick="guardarTrazabilidad('${id}')">
           💾 Guardar
@@ -115,7 +121,7 @@ async function cargarEncuestas() {
 cargarEncuestas();
 
 // ======================================================
-// 💾 GUARDAR TRANSPORTISTA + ESPECIALISTA (POR ENCUESTA)
+// 💾 GUARDAR TRANSPORTISTA + ESPECIALISTA
 // ======================================================
 window.guardarTrazabilidad = async (id) => {
   const transportista = document
@@ -165,8 +171,7 @@ document.getElementById("exportarPDF").addEventListener("click", () => {
     pdf.text(`Razón Social: ${e.razonSocial || ""}`, 10, y); y += 8;
     pdf.text(`Fecha: ${e.fecha || ""}  Hora: ${e.hora || ""}`, 10, y); y += 8;
     pdf.text(`Transportista: ${e.transportista || "Sin asignar"}`, 10, y); y += 8;
-    pdf.text(`Especialista: ${e.especialistaLogistica || "Sin asignar"}`, 10, y); y += 8;
-    pdf.text(`Observaciones: ${e.observaciones || ""}`, 10, y); y += 12;
+    pdf.text(`Especialista: ${e.especialistaLogistica || "Sin asignar"}`, 10, y); y += 10;
 
     if (y > 270) {
       pdf.addPage();
