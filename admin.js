@@ -30,21 +30,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ======================================================
-// 📋 CARGAR ENCUESTAS
-// ======================================================
+// ================= ELEMENTOS =================
 const tabla = document.getElementById("tablaEncuestas");
 let encuestas = [];
 
+// ======================================================
+// 📋 CARGAR ENCUESTAS
+// ======================================================
 async function cargarEncuestas() {
-  const q = query(
-    collection(db, "encuestas"),
-    orderBy("creadoEn", "desc")
-  );
-
+  const q = query(collection(db, "encuestas"), orderBy("creadoEn", "desc"));
   const snapshot = await getDocs(q);
-  encuestas = [];
+
   tabla.innerHTML = "";
+  encuestas = [];
 
   snapshot.forEach(docSnap => {
     const data = docSnap.data();
@@ -54,35 +52,7 @@ async function cargarEncuestas() {
 
     const tr = document.createElement("tr");
 
-    // 🔴🟢 VALIDAR TRAZABILIDAD
-    const sinTransportista = !data.transportista;
-    const sinEspecialista = !data.especialistaLogistica;
-
-    if (sinTransportista || sinEspecialista) {
-      tr.classList.add("falta-trazabilidad");
-      tr.title = "Falta asignar transportista y/o especialista";
-    } else {
-      tr.classList.add("trazabilidad-ok");
-      tr.title = "Trazabilidad completa";
-    }
-
-    // Firma
-    const firmaHTML = data.firmaURL
-      ? `<a href="${data.firmaURL}" target="_blank">
-           <img src="${data.firmaURL}" width="80">
-         </a>`
-      : "";
-
-    // Fotos
-    const fotosHTML = (data.fotosURLs && data.fotosURLs.length > 0)
-      ? data.fotosURLs.map(url => `
-          <a href="${url}" target="_blank">
-            <img src="${url}" width="60" style="margin:3px">
-          </a>
-        `).join("")
-      : "";
-
-    // ✅ ORDEN EXACTO DE LA TABLA
+    // ---------------- HTML DE LA FILA ----------------
     tr.innerHTML = `
       <td>${data.razonSocial || ""}</td>
       <td>${data.fecha || ""}</td>
@@ -94,19 +64,22 @@ async function cargarEncuestas() {
       <td>${data.p4 || ""}</td>
 
       <td>${data.observaciones || ""}</td>
-      <td>${firmaHTML}</td>
-      <td>${fotosHTML}</td>
+      <td>${data.firmaURL ? `<img src="${data.firmaURL}" width="60">` : ""}</td>
+      <td>
+        ${(data.fotosURLs || []).map(
+          u => `<img src="${u}" width="50" style="margin:2px">`
+        ).join("")}
+      </td>
 
-      <!-- 🚚 Transportista -->
       <td>
         <input
           type="text"
           id="transportista-${id}"
           value="${data.transportista || ""}"
-          placeholder="Ingresar transportista">
+          placeholder="Transportista"
+        >
       </td>
 
-      <!-- 👤 Especialista -->
       <td>
         <select id="especialista-${id}">
           <option value="">-- Seleccione --</option>
@@ -117,18 +90,31 @@ async function cargarEncuestas() {
         </select>
       </td>
 
-      <!-- ✅ Acción -->
       <td>
-        <button onclick="guardarTrazabilidad('${id}')">💾 Guardar</button>
+        <button onclick="guardarTrazabilidad('${id}')">
+          💾 Guardar
+        </button>
       </td>
     `;
 
     tabla.appendChild(tr);
 
-    // ✅ Preseleccionar especialista si ya existe
+    // ---------------- PRESELECCION ----------------
     if (data.especialistaLogistica) {
       const sel = document.getElementById(`especialista-${id}`);
       if (sel) sel.value = data.especialistaLogistica;
+    }
+
+    // ---------------- VALIDAR TRAZABILIDAD (CLAVE) ----------------
+    const tieneTransportista = !!data.transportista;
+    const tieneEspecialista = !!data.especialistaLogistica;
+
+    if (tieneTransportista && tieneEspecialista) {
+      tr.classList.add("trazabilidad-ok");
+      tr.title = "Encuesta completa";
+    } else {
+      tr.classList.add("falta-trazabilidad");
+      tr.title = "Encuesta pendiente de trazabilidad";
     }
   });
 
@@ -156,18 +142,16 @@ window.guardarTrazabilidad = async (id) => {
   });
 
   await cargarEncuestas();
-  alert("✅ Trazabilidad guardada correctamente");
 };
 
 // ======================================================
 // 🔢 CONTADORES
 // ======================================================
 function actualizarContadores() {
-  const filas = document.querySelectorAll("#tablaEncuestas tr");
   let pendientes = 0;
   let completas = 0;
 
-  filas.forEach(tr => {
+  document.querySelectorAll("#tablaEncuestas tr").forEach(tr => {
     if (tr.classList.contains("falta-trazabilidad")) pendientes++;
     if (tr.classList.contains("trazabilidad-ok")) completas++;
   });
@@ -192,38 +176,4 @@ document.getElementById("btnTodas").addEventListener("click", () => {
   document.querySelectorAll("#tablaEncuestas tr").forEach(tr => {
     tr.style.display = "";
   });
-});
-
-// ======================================================
-// 📊 EXPORTAR EXCEL
-// ======================================================
-document.getElementById("exportarExcel").addEventListener("click", () => {
-  const ws = XLSX.utils.json_to_sheet(encuestas);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Encuestas");
-  XLSX.writeFile(wb, "encuestas.xlsx");
-});
-
-// ======================================================
-// 📄 EXPORTAR PDF
-// ======================================================
-document.getElementById("exportarPDF").addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-  let y = 10;
-
-  encuestas.forEach((e, i) => {
-    pdf.text(`Encuesta #${i + 1}`, 10, y); y += 7;
-    pdf.text(`Razon Social: ${e.razonSocial || ""}`, 10, y); y += 7;
-    pdf.text(`Fecha: ${e.fecha || ""} Hora: ${e.hora || ""}`, 10, y); y += 7;
-    pdf.text(`Transportista: ${e.transportista || "Sin asignar"}`, 10, y); y += 7;
-    pdf.text(`Especialista: ${e.especialistaLogistica || "Sin asignar"}`, 10, y); y += 10;
-
-    if (y > 270) {
-      pdf.addPage();
-      y = 10;
-    }
-  });
-
-  pdf.save("encuestas.pdf");
 });
