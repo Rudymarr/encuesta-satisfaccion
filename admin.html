@@ -5,7 +5,7 @@
   <title>Panel Administrador – Encuestas BEMISAL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ✅ SheetJS -->
+  <!-- ✅ SheetJS (Excel) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
   <!-- ✅ jsPDF -->
@@ -17,27 +17,69 @@
       padding: 20px;
       background: #f5f5f5;
     }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
     .acciones {
       margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
+
+    button {
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       background: white;
       font-size: 13px;
     }
+
     th, td {
       border: 1px solid #ccc;
       padding: 6px;
       vertical-align: top;
+      text-align: left;
     }
+
     th {
       background: #f0f0f0;
     }
-    input, select {
+
+    input[type="text"],
+    select {
       width: 100%;
       padding: 4px;
       font-size: 12px;
+      box-sizing: border-box;
+    }
+
+    img {
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    /* 🔴 Encuestas SIN trazabilidad */
+    .falta-trazabilidad {
+      background-color: #ffe9e9;
+    }
+
+    /* 🟢 Encuestas COMPLETAS */
+    .trazabilidad-ok {
+      background-color: #e9f9ee;
+    }
+
+    .contador {
+      margin-left: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -46,14 +88,27 @@
 
   <h2>📋 Panel Administrador – Encuestas BEMISAL</h2>
 
+  <!-- ================= ACCIONES + CONTADORES ================= -->
   <div class="acciones">
     <button id="exportarExcel">📊 Exportar a Excel</button>
     <button id="exportarPDF">📄 Exportar a PDF</button>
+    <button id="btnPendientes">🔴 Mostrar solo pendientes</button>
+    <button id="btnTodas">🔁 Mostrar todas</button>
+
+    <span id="contadorPendientes" class="contador">
+      🔴 Pendientes: 0
+    </span>
+
+    <span id="contadorCompletas" class="contador">
+      🟢 Completas: 0
+    </span>
   </div>
 
+  <!-- ================= TABLA DE ENCUESTAS ================= -->
   <table>
     <thead>
       <tr>
+        <!-- ORDEN EXACTO COMO LO DEFINISTE -->
         <th>Razon Social</th>
         <th>Fecha</th>
         <th>Hora</th>
@@ -72,10 +127,13 @@
         <th>Accion</th>
       </tr>
     </thead>
-    <tbody id="tablaEncuestas"></tbody>
+
+    <tbody id="tablaEncuestas">
+      <!-- Las filas se cargan dinamicamente desde admin.js -->
+    </tbody>
   </table>
 
-  <!-- ✅ CLAVE: admin.js como MODULE -->
+  <!-- ================= JS ADMIN (OBLIGATORIO COMO MODULE) ================= -->
   <script type="module" src="admin.js"></script>
 
 </body>
