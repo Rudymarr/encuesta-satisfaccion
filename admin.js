@@ -30,9 +30,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ======================================================
-// 📋 CARGAR ENCUESTAS
-// ======================================================
+// ================= CARGAR ENCUESTAS =================
 const tabla = document.getElementById("tablaEncuestas");
 let encuestas = [];
 
@@ -42,11 +40,11 @@ async function cargarEncuestas() {
     orderBy("creadoEn", "desc")
   );
 
-  const snapshot = await getDocs(q);
+  const snap = await getDocs(q);
   encuestas = [];
   tabla.innerHTML = "";
 
-  snapshot.forEach(docSnap => {
+  snap.forEach(docSnap => {
     const data = docSnap.data();
     const id = docSnap.id;
 
@@ -54,7 +52,7 @@ async function cargarEncuestas() {
 
     const firmaHTML = data.firmaURL
       ? `<a href="${data.firmaURL}" target="_blank">
-           <img src="${data.firmaURL}" width="70">
+           <img src="${data.firmaURL}" width="60">
          </a>`
       : "";
 
@@ -62,13 +60,11 @@ async function cargarEncuestas() {
       ? data.fotosURLs.map(url => `
           <a href="${url}" target="_blank">
             <img src="${url}" width="60" style="margin:2px">
-          </a>
-        `).join("")
+          </a>`).join("")
       : "";
 
     const tr = document.createElement("tr");
 
-    // ✅ ORDEN EXACTO DEL HTML
     tr.innerHTML = `
       <td>${data.razonSocial || ""}</td>
       <td>${data.fecha || ""}</td>
@@ -83,17 +79,16 @@ async function cargarEncuestas() {
       <td>${firmaHTML}</td>
       <td>${fotosHTML}</td>
 
-      <!-- 🚚 Transportista -->
+      <!-- Transportista -->
       <td>
         <input
           type="text"
           id="transportista-${id}"
           value="${data.transportista || ""}"
-          placeholder="Ingresar transportista"
-        >
+          placeholder="Ingresar transportista">
       </td>
 
-      <!-- 👤 Especialista (lista fija SIN ACENTOS) -->
+      <!-- Especialista -->
       <td>
         <select id="especialista-${id}">
           <option value="">-- Seleccione --</option>
@@ -104,11 +99,9 @@ async function cargarEncuestas() {
         </select>
       </td>
 
-      <!-- ✅ Accion -->
+      <!-- Accion -->
       <td>
-        <button onclick="guardarTrazabilidad('${id}')">
-          💾 Guardar
-        </button>
+        <button onclick="guardarTrazabilidad('${id}')">💾 Guardar</button>
       </td>
     `;
 
@@ -124,9 +117,7 @@ async function cargarEncuestas() {
 
 cargarEncuestas();
 
-// ======================================================
-// 💾 GUARDAR TRANSPORTISTA + ESPECIALISTA
-// ======================================================
+// ================= GUARDAR TRAZABILIDAD =================
 window.guardarTrazabilidad = async (id) => {
   const transportista = document
     .getElementById(`transportista-${id}`)
@@ -139,7 +130,7 @@ window.guardarTrazabilidad = async (id) => {
     .trim();
 
   if (!transportista || !especialistaLogistica) {
-    alert("⚠️ Debe ingresar transportista y especialista");
+    alert("Debe ingresar transportista y especialista");
     return;
   }
 
@@ -149,15 +140,12 @@ window.guardarTrazabilidad = async (id) => {
     actualizadoEn: new Date()
   });
 
-  // ✅ Recargar tabla para reflejar cambios
-  await cargarEncuestas();
+  await cargarEncuestas(); // ✅ refresca tabla
 
-  alert("✅ Trazabilidad guardada correctamente");
+  alert("Trazabilidad guardada correctamente");
 };
 
-// ======================================================
-// 📊 EXPORTAR A EXCEL
-// ======================================================
+// ================= EXPORTAR EXCEL =================
 document.getElementById("exportarExcel").addEventListener("click", () => {
   const ws = XLSX.utils.json_to_sheet(encuestas);
   const wb = XLSX.utils.book_new();
@@ -165,19 +153,17 @@ document.getElementById("exportarExcel").addEventListener("click", () => {
   XLSX.writeFile(wb, "encuestas.xlsx");
 });
 
-// ======================================================
-// 📄 EXPORTAR A PDF
-// ======================================================
+// ================= EXPORTAR PDF =================
 document.getElementById("exportarPDF").addEventListener("click", () => {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
   let y = 10;
 
   encuestas.forEach((e, i) => {
-    pdf.text(`Encuesta #${i + 1}`, 10, y); y += 8;
-    pdf.text(`Razon Social: ${e.razonSocial || ""}`, 10, y); y += 8;
-    pdf.text(`Fecha: ${e.fecha || ""}  Hora: ${e.hora || ""}`, 10, y); y += 8;
-    pdf.text(`Transportista: ${e.transportista || "Sin asignar"}`, 10, y); y += 8;
+    pdf.text(`Encuesta #${i + 1}`, 10, y); y += 7;
+    pdf.text(`Razon Social: ${e.razonSocial || ""}`, 10, y); y += 7;
+    pdf.text(`Fecha: ${e.fecha || ""} Hora: ${e.hora || ""}`, 10, y); y += 7;
+    pdf.text(`Transportista: ${e.transportista || "Sin asignar"}`, 10, y); y += 7;
     pdf.text(`Especialista: ${e.especialistaLogistica || "Sin asignar"}`, 10, y); y += 10;
 
     if (y > 270) {
