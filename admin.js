@@ -52,13 +52,12 @@ async function cargarEncuestas() {
 
     encuestas.push({ id, ...data });
 
-    // Firma (miniatura clickeable)
     const firmaHTML = data.firmaURL
-      ? `<img src="${data.firmaURL}" width="70" style="cursor:pointer"
-           onclick="window.open('${data.firmaURL}','_blank')">`
+      ? `<a href="${data.firmaURL}" target="_blank">
+           <img src="${data.firmaURL}" width="70">
+         </a>`
       : "";
 
-    // Fotos (miniaturas)
     const fotosHTML = (data.fotosURLs && data.fotosURLs.length > 0)
       ? data.fotosURLs.map(url => `
           <a href="${url}" target="_blank">
@@ -84,29 +83,26 @@ async function cargarEncuestas() {
       <td>${firmaHTML}</td>
       <td>${fotosHTML}</td>
 
-      <!-- ✅ Transportista (FINAL) -->
+      <!-- 🚚 Transportista -->
       <td>
         <input
           type="text"
           id="transportista-${id}"
           value="${data.transportista || ""}"
           placeholder="Ingresar transportista"
-          style="width:140px"
         >
       </td>
 
-      <!-- ✅ Especialista Logística (FINAL) -->
-      
-<td>
-  <select id="especialista-${id}" style="width:100%">
-    <option value="">-- Seleccione --</option>
-    <option value="Néstor López">Néstor López</option>
-    <option value="Irween Ortiz">Irween Ortiz</option>
-    <option value="Eleonora Girón">Eleonora Girón</option>
-    <option value="Mariela Mazariego (Jefe)">Mariela Mazariego (Jefe)</option>
-  </select>
-</td>
-
+      <!-- 👤 Especialista (LISTA FIJA) -->
+      <td>
+        <select id="especialista-${id}">
+          <option value="">-- Seleccione --</option>
+          <option value="Néstor López">Néstor López</option>
+          <option value="Irween Ortiz">Irween Ortiz</option>
+          <option value="Eleonora Girón">Eleonora Girón</option>
+          <option value="Mariela Mazariego (Jefe)">Mariela Mazariego (Jefe)</option>
+        </select>
+      </td>
 
       <!-- ✅ Acción -->
       <td>
@@ -117,13 +113,19 @@ async function cargarEncuestas() {
     `;
 
     tabla.appendChild(tr);
+
+    // ✅ Preseleccionar especialista si ya existe
+    if (data.especialistaLogistica) {
+      const sel = document.getElementById(`especialista-${id}`);
+      if (sel) sel.value = data.especialistaLogistica;
+    }
   });
 }
 
 cargarEncuestas();
 
 // ======================================================
-// 💾 GUARDAR TRANSPORTISTA + ESPECIALISTA
+// 💾 GUARDAR TRAZABILIDAD
 // ======================================================
 window.guardarTrazabilidad = async (id) => {
   const transportista = document
