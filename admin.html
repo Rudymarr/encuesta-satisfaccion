@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
+<!DOCTYPE html><!DOCTYPE html <meta charset="UTF-8">
   <title>Panel Administrador – Encuestas BEMISAL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- SheetJS (Excel) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx/script>
-
-  <!-- jsPDF -->
+  <!-- SheetJS -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js<!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
@@ -17,70 +12,43 @@
       padding: 20px;
       background: #f5f5f5;
     }
-
-    h2 {
-      margin-bottom: 10px;
-    }
-
     .acciones {
       margin-bottom: 15px;
     }
-
-    button {
-      padding: 6px 12px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
     table {
       width: 100%;
       border-collapse: collapse;
       background: white;
       font-size: 13px;
     }
-
     th, td {
       border: 1px solid #ccc;
       padding: 6px;
-      text-align: left;
       vertical-align: top;
     }
-
     th {
       background: #f0f0f0;
     }
-
-    input[type="text"],
-    select {
+    input, select {
       width: 100%;
       padding: 4px;
       font-size: 12px;
-      box-sizing: border-box;
-    }
-
-    img {
-      border-radius: 4px;
-      border: 1px solid #ccc;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ================= ENCABEZADO ================= -->
-  <h2>📋 Panel Administrador – Encuestas BEMISAL</h2>
+  <h2>Panel Administrador – Encuestas BEMISAL</h2>
 
-  <!-- ================= ACCIONES ================= -->
   <div class="acciones">
-    <button id="exportarExcel">📊 Exportar a Excel</button>
-    <button id="exportarPDF">📄 Exportar a PDF</button>
+    <button id="exportarExcel">Exportar a Excel</button>
+    <button id="exportarPDF">Exportar a PDF</button>
   </div>
 
-  <!-- ================= TABLA ================= -->
   <table>
     <thead>
       <tr>
-        <!-- ORDEN EXACTO COMO TU SISTEMA ACTUAL -->
         <th>Razon Social</th>
         <th>Fecha</th>
         <th>Hora</th>
@@ -99,14 +67,14 @@
         <th>Accion</th>
       </tr>
     </thead>
-
-    <tbody id="tablaEncuestas">
-      <!-- Las filas se cargan desde admin.js -->
-    </tbody>
+    <tbody id="tablaEncuestas"></tbody>
   </table>
 
-  <!-- ================= SCRIPT ADMIN ================= -->
+  <!-- ✅ MUY IMPORTANTE -->
   <script type="module" src="admin.js"></script>
 
 </body>
 </html>
+
+<html lang="es">
+<head>
