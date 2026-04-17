@@ -96,15 +96,17 @@ async function cargarEncuestas() {
       </td>
 
       <!-- ✅ Especialista Logística (FINAL) -->
-      <td>
-        <input
-          type="text"
-          id="especialista-${id}"
-          value="${data.especialistaLogistica || ""}"
-          placeholder="Ingresar especialista"
-          style="width:160px"
-        >
-      </td>
+      
+<td>
+  <select id="especialista-${id}" style="width:100%">
+    <option value="">-- Seleccione --</option>
+    <option value="Néstor López">Néstor López</option>
+    <option value="Irween Ortiz">Irween Ortiz</option>
+    <option value="Eleonora Girón">Eleonora Girón</option>
+    <option value="Mariela Mazariego (Jefe)">Mariela Mazariego (Jefe)</option>
+  </select>
+</td>
+
 
       <!-- ✅ Acción -->
       <td>
