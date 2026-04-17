@@ -61,14 +61,14 @@ async function cargarEncuestas() {
     const fotosHTML = (data.fotosURLs && data.fotosURLs.length > 0)
       ? data.fotosURLs.map(url => `
           <a href="${url}" target="_blank">
-            <img src="${url}" width="60" style="margin:3px">
+            <img src="${url}" width="60" style="margin:2px">
           </a>
         `).join("")
       : "";
 
     const tr = document.createElement("tr");
 
-    // ✅ ORDEN EXACTO COMO TU TABLA ACTUAL
+    // ✅ ORDEN EXACTO DEL HTML
     tr.innerHTML = `
       <td>${data.razonSocial || ""}</td>
       <td>${data.fecha || ""}</td>
@@ -93,18 +93,18 @@ async function cargarEncuestas() {
         >
       </td>
 
-      <!-- 👤 Especialista (LISTA FIJA) -->
+      <!-- 👤 Especialista (lista fija SIN ACENTOS) -->
       <td>
         <select id="especialista-${id}">
           <option value="">-- Seleccione --</option>
-          <option value="Néstor López">Néstor López</option>
+          <option value="Nestor Lopez">Nestor Lopez</option>
           <option value="Irween Ortiz">Irween Ortiz</option>
-          <option value="Eleonora Girón">Eleonora Girón</option>
-          <option value="Mariela Mazariego (Jefe)">Mariela Mazariego (Jefe)</option>
+          <option value="Eleonora Giron">Eleonora Giron</option>
+          <option value="Mariela Mazariego Jefe">Mariela Mazariego Jefe</option>
         </select>
       </td>
 
-      <!-- ✅ Acción -->
+      <!-- ✅ Accion -->
       <td>
         <button onclick="guardarTrazabilidad('${id}')">
           💾 Guardar
@@ -114,7 +114,7 @@ async function cargarEncuestas() {
 
     tabla.appendChild(tr);
 
-    // ✅ Preseleccionar especialista si ya existe
+    // ✅ Preseleccionar especialista guardado
     if (data.especialistaLogistica) {
       const sel = document.getElementById(`especialista-${id}`);
       if (sel) sel.value = data.especialistaLogistica;
@@ -125,7 +125,7 @@ async function cargarEncuestas() {
 cargarEncuestas();
 
 // ======================================================
-// 💾 GUARDAR TRAZABILIDAD
+// 💾 GUARDAR TRANSPORTISTA + ESPECIALISTA
 // ======================================================
 window.guardarTrazabilidad = async (id) => {
   const transportista = document
@@ -148,6 +148,9 @@ window.guardarTrazabilidad = async (id) => {
     especialistaLogistica,
     actualizadoEn: new Date()
   });
+
+  // ✅ Recargar tabla para reflejar cambios
+  await cargarEncuestas();
 
   alert("✅ Trazabilidad guardada correctamente");
 };
@@ -172,7 +175,7 @@ document.getElementById("exportarPDF").addEventListener("click", () => {
 
   encuestas.forEach((e, i) => {
     pdf.text(`Encuesta #${i + 1}`, 10, y); y += 8;
-    pdf.text(`Razón Social: ${e.razonSocial || ""}`, 10, y); y += 8;
+    pdf.text(`Razon Social: ${e.razonSocial || ""}`, 10, y); y += 8;
     pdf.text(`Fecha: ${e.fecha || ""}  Hora: ${e.hora || ""}`, 10, y); y += 8;
     pdf.text(`Transportista: ${e.transportista || "Sin asignar"}`, 10, y); y += 8;
     pdf.text(`Especialista: ${e.especialistaLogistica || "Sin asignar"}`, 10, y); y += 10;
