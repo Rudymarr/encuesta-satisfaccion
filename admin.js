@@ -73,8 +73,14 @@ async function cargarEncuestas() {
     tr.innerHTML = `
       <td>${data.razonSocial || ""}</td>
       <td>${data.fecha || ""}</td>
-      <td>${data.hora || ""}</td>
-
+      <td>${data.hora || ""}</td>  
+      <td>${data.p1 || ""}</td>
+      <td>${data.p2 || ""}</td>
+      <td>${data.p3 || ""}</td>
+      <td>${data.p4 || ""}</td>
+      <td>${data.observaciones || ""}</td>
+      <td>${firmaHTML}</td>
+      <td>${fotosHTML}</td>
       <!-- Transportista (editable) -->
       <td>
         <input
@@ -94,14 +100,6 @@ async function cargarEncuestas() {
           placeholder="Sin asignar"
         >
       </td>
-
-      <td>${data.p1 || ""}</td>
-      <td>${data.p2 || ""}</td>
-      <td>${data.p3 || ""}</td>
-      <td>${data.p4 || ""}</td>
-      <td>${data.observaciones || ""}</td>
-      <td>${firmaHTML}</td>
-      <td>${fotosHTML}</td>
 
       <td>
         <button onclick="guardarTrazabilidad('${id}')">
