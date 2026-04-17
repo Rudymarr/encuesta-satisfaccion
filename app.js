@@ -28,6 +28,8 @@ const ctx = canvas.getContext("2d");
 const limpiarBtn = document.getElementById("limpiarFirma");
 const enviarBtn = document.getElementById("enviarEncuesta");
 
+const fotosInput = document.getElementById("fotos");
+
 const razonSocialInput = document.getElementById("razonSocial");
 const fechaInput = document.getElementById("fecha");
 const horaInput = document.getElementById("hora");
@@ -74,7 +76,7 @@ function iniciar(e) {
 
 function dibujar(e) {
   if (!dibujando) return;
-  e.preventDefault();
+  if (e.cancelable) e.preventDefault();
   const pos = getPos(e);
   ctx.lineTo(pos.x, pos.y);
   ctx.stroke();
@@ -89,9 +91,8 @@ canvas.addEventListener("mousedown", iniciar);
 canvas.addEventListener("mousemove", dibujar);
 canvas.addEventListener("mouseup", terminar);
 canvas.addEventListener("mouseleave", terminar);
-
 canvas.addEventListener("touchstart", iniciar);
-canvas.addEventListener("touchmove", dibujar);
+canvas.addEventListener("touchmove", dibujar, { passive: false });
 canvas.addEventListener("touchend", terminar);
 
 limpiarBtn.addEventListener("click", () => {
@@ -120,20 +121,36 @@ function obtenerRespuesta(nombre) {
 // =======================
 // ☁️ CLOUDINARY
 // =======================
+const CLOUD_NAME = "dh9pwf0sl";
+const UPLOAD_PRESET = "encuestas_unsigned";
+
 async function subirFirmaCloudinary(base64) {
   const blob = await (await fetch(base64)).blob();
-
   const formData = new FormData();
   formData.append("file", blob);
-  formData.append("upload_preset", "encuestas_unsigned");
+  formData.append("upload_preset", UPLOAD_PRESET);
 
   const res = await fetch(
-    "https://api.cloudinary.com/v1_1/dh9pwf0sl/image/upload",
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
     { method: "POST", body: formData }
   );
 
-  if (!res.ok) throw new Error("Error Cloudinary");
+  if (!res.ok) throw new Error("Error al subir firma");
+  const data = await res.json();
+  return data.secure_url;
+}
 
+async function subirImagen(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", UPLOAD_PRESET);
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+    { method: "POST", body: formData }
+  );
+
+  if (!res.ok) throw new Error("Error al subir imagen");
   const data = await res.json();
   return data.secure_url;
 }
@@ -175,8 +192,15 @@ enviarBtn.addEventListener("click", async () => {
     enviarBtn.disabled = true;
     enviarBtn.innerText = "Enviando...";
 
-    const firmaBase64 = obtenerFirmaBase64();
-    const firmaURL = await subirFirmaCloudinary(firmaBase64);
+    // Subir firma
+    const firmaURL = await subirFirmaCloudinary(obtenerFirmaBase64());
+
+    // Subir fotos
+    let fotosURLs = [];
+    if (fotosInput.files.length > 0) {
+      const uploads = Array.from(fotosInput.files).map(f => subirImagen(f));
+      fotosURLs = await Promise.all(uploads);
+    }
 
     await addDoc(collection(db, "encuestas"), {
       razonSocial,
@@ -189,18 +213,19 @@ enviarBtn.addEventListener("click", async () => {
       p4,
       observaciones,
       firmaURL,
+      fotosURLs,
       creadoEn: new Date()
     });
 
     alert("✅ Encuesta enviada correctamente");
 
-    // Reset visual
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    fotosInput.value = "";
     enviarBtn.innerText = "Enviar encuesta";
 
   } catch (error) {
     console.error(error);
-    alert("❌ Error al enviar la encuesta");
+    alert("❌ Error al enviar encuesta");
   } finally {
     enviando = false;
     enviarBtn.disabled = false;
